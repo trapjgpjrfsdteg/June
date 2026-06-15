@@ -6,6 +6,7 @@ import com.denser.june.di.flavorModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
+import org.koin.core.logger.Level
 import com.denser.june.core.utils.FileUtils
 import com.denser.june.core.domain.repository.JournalRepository
 import kotlinx.coroutines.CoroutineScope
@@ -16,18 +17,24 @@ import org.koin.android.ext.android.inject
 
 class JuneApplication : Application() {
     private val journalRepo: JournalRepository by inject()
+
     override fun onCreate() {
         super.onCreate()
 
         startKoin {
-            androidLogger()
+            androidLogger(Level.ERROR)
             androidContext(this@JuneApplication)
             modules(juneModules, flavorModule)
         }
         
-        NotificationsHelper(this).createNotificationChannel()
-        cleanupStorage()
+        try {
+            NotificationsHelper(this).createNotificationChannel()
+            cleanupStorage()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
+
     private fun cleanupStorage() {
         CoroutineScope(Dispatchers.IO).launch {
             try {

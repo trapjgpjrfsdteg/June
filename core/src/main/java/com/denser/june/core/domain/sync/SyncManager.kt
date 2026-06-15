@@ -13,11 +13,9 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.debounce
 import com.denser.june.core.data.sync.SyncWorker
-import com.denser.june.core.domain.preferences.PrivacyPreferences
 import com.denser.june.core.data.database.journal.JournalDatabase
 import kotlinx.coroutines.FlowPreview
 import java.io.File

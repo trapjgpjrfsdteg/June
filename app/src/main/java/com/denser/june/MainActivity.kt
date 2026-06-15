@@ -1,10 +1,10 @@
 package com.denser.june
 
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.SystemBarStyle
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.compose.foundation.Image
@@ -41,10 +41,8 @@ import com.denser.june.core.utils.SecurityUtils
 import com.denser.june.presentation.JuneApp
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import org.koin.android.ext.android.inject
 import com.denser.june.core.R
-import androidx.core.graphics.drawable.toDrawable
 
 enum class LockState {
     LOADING,
@@ -58,7 +56,9 @@ class MainActivity : FragmentActivity() {
     private val privacyPreferences: PrivacyPreferences by inject()
     private val themePrefs: ThemePreferences by inject()
     private val fontPrefs: FontPreferences by inject()
+
     private var lockState by mutableStateOf(LockState.LOADING)
+    private var initialAppTheme by mutableStateOf(AppTheme())
 
     private var isPinError by mutableStateOf(false)
     private var storedPinHash: String? = null
@@ -68,33 +68,36 @@ class MainActivity : FragmentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        val initialAppTheme = runBlocking {
-            themePrefs.getAppThemeFlow(fontPrefs).first()
-        }
-
         splashScreen.setKeepOnScreenCondition { lockState == LockState.LOADING }
 
         lifecycleScope.launch {
-            val isLockEnabled = privacyPreferences.getAppLockFlow().first()
-            val lockType = privacyPreferences.getLockTypeFlow().first()
-            storedPinHash = privacyPreferences.getPinHashFlow().first()
+            try {
+                initialAppTheme = themePrefs.getAppThemeFlow(fontPrefs).first()
 
-            if (!isLockEnabled) {
-                lockState = LockState.UNLOCKED
-            } else {
-                when (lockType) {
-                    LockType.BIOMETRIC -> {
-                        lockState = LockState.LOCKED_BIOMETRIC
-                        checkBiometricAndAuthenticate()
-                    }
-                    LockType.PIN -> {
-                        if (storedPinHash != null) {
-                            lockState = LockState.LOCKED_PIN
-                        } else {
-                            lockState = LockState.UNLOCKED
+                val isLockEnabled = privacyPreferences.getAppLockFlow().first()
+                val lockType = privacyPreferences.getLockTypeFlow().first()
+                storedPinHash = privacyPreferences.getPinHashFlow().first()
+
+                if (!isLockEnabled) {
+                    lockState = LockState.UNLOCKED
+                } else {
+                    when (lockType) {
+                        LockType.BIOMETRIC -> {
+                            lockState = LockState.LOCKED_BIOMETRIC
+                            checkBiometricAndAuthenticate()
+                        }
+                        LockType.PIN -> {
+                            if (storedPinHash != null) {
+                                lockState = LockState.LOCKED_PIN
+                            } else {
+                                lockState = LockState.UNLOCKED
+                            }
                         }
                     }
                 }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                lockState = LockState.UNLOCKED
             }
         }
 
@@ -115,7 +118,7 @@ class MainActivity : FragmentActivity() {
             val systemDark = isSystemInDarkTheme()
             val systemColorScheme = if (systemDark) darkColorScheme() else lightColorScheme()
             val colorBackground = if (systemDark) AndroidColor.BLACK else AndroidColor.WHITE
-            window.setBackgroundDrawable(colorBackground.toDrawable())
+            window.setBackgroundDrawable(ColorDrawable(colorBackground))
 
             MaterialTheme(colorScheme = systemColorScheme) {
                 when (lockState) {
