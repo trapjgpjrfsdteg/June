@@ -16,8 +16,23 @@ import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.datasource.DefaultHttpDataSource
+import androidx.media3.datasource.HttpDataSource
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
+import com.denser.june.core.utils.Constants
+
+@OptIn(UnstableApi::class)
+fun createHttpDataSourceFactory(): HttpDataSource.Factory {
+    return DefaultHttpDataSource.Factory()
+        .setUserAgent(Constants.USER_AGENT)
+        .setAllowCrossProtocolRedirects(true)
+        .setDefaultRequestProperties(
+            mapOf(
+                "Origin" to Constants.YOUTUBE_ORIGIN,
+                "Referer" to Constants.YOUTUBE_REFERER
+            )
+        )
+}
 
 @OptIn(UnstableApi::class)
 @Composable
@@ -28,15 +43,10 @@ fun rememberManagedExoPlayer(
     onIsPlayingChanged: ((Boolean) -> Unit)? = null
 ): ExoPlayer {
     val exoPlayer = remember(uri) {
-        // 1. Create a custom HTTP data source factory and set a realistic browser User-Agent string
-        val httpDataSourceFactory = DefaultHttpDataSource.Factory()
-            .setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
-            .setAllowCrossProtocolRedirects(true)
+        val httpDataSourceFactory = createHttpDataSourceFactory()
 
-        // 2. Wrap the HTTP source factor inside standard DefaultDataSource factory
         val dataSourceFactory = DefaultDataSource.Factory(context, httpDataSourceFactory)
-        
-        // 3. Attach it into MediaSource setup to handle streaming content types
+
         val mediaSourceFactory = DefaultMediaSourceFactory(context)
             .setDataSourceFactory(dataSourceFactory)
 

@@ -9,7 +9,6 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DefaultDataSource
-import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import com.denser.june.core.utils.Constants
@@ -19,6 +18,7 @@ import com.denser.june.core.domain.preferences.JournalPreferences
 import com.denser.june.core.domain.preferences.PrivacyPreferences
 import com.denser.june.core.domain.model.Journal
 import com.denser.june.core.domain.model.SongDetails
+import com.denser.june.presentation.utils.createHttpDataSourceFactory
 import java.time.DayOfWeek
 import com.denser.june.core.utils.combineDateAndTime
 import com.denser.june.core.utils.toYearMonth
@@ -105,9 +105,7 @@ class TimelineVM(
 
     @androidx.annotation.OptIn(UnstableApi::class)
     private val exoPlayer: ExoPlayer by lazy {
-        val httpDataSourceFactory = DefaultHttpDataSource.Factory()
-            .setUserAgent(Constants.USER_AGENT)
-            .setAllowCrossProtocolRedirects(true)
+        val httpDataSourceFactory = createHttpDataSourceFactory()
 
         val dataSourceFactory = DefaultDataSource.Factory(context, httpDataSourceFactory)
 

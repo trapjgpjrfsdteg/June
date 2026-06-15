@@ -193,7 +193,8 @@ fun EditorScreen() {
                                 contentColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(
                                     alpha = 0.75f
                                 )
-                            )
+                            ),
+                            shape = RoundedCornerShape(topStart = 32.dp, topEnd = 16.dp, bottomStart = 16.dp, bottomEnd = 16.dp)
                         ) { Icon(painterResource(R.drawable.close_24px), "Close") }
 
                         FilledIconButton(
@@ -218,16 +219,41 @@ fun EditorScreen() {
                     }
                 },
                 actions = {
-                    if (showSaveButton) {
-                        Button(
-                            enabled = !state.isLoading,
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(2.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        if (showSaveButton) {
+                            Button(
+                                enabled = !state.isLoading,
+                                onClick = {
+                                    keyboardController?.hide()
+                                    focusManager.clearFocus(force = true)
+                                    if (!state.isLoading) viewModel.onAction(EditorAction.SaveJournal)
+                                },
+                            ) {
+                                Text("Save")
+                            }
+                        }
+
+                        FilledIconButton(
                             onClick = {
                                 keyboardController?.hide()
                                 focusManager.clearFocus(force = true)
-                                if (!state.isLoading) viewModel.onAction(EditorAction.SaveJournal)
+                                showOptionsSheet = true
                             },
+                            colors = IconButtonDefaults.filledIconButtonColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                                    alpha = 0.75f
+                                )
+                            ),
+                            shape = RoundedCornerShape(topStart = 16.dp, topEnd = 32.dp, bottomStart = 16.dp, bottomEnd = 16.dp)
                         ) {
-                            Text("Save")
+                            Icon(
+                                painter = painterResource(R.drawable.more_vert_24px),
+                                contentDescription = "Options"
+                            )
                         }
                     }
                 }
@@ -242,10 +268,8 @@ fun EditorScreen() {
                     currentTags = state.tags,
                     onTagSelect = onTagSelect,
                     onAddClick = { dialogState.showAddItemSheet = true },
-                    onOpenOptions = {
-                        keyboardController?.hide()
-                        focusManager.clearFocus(force = true)
-                        showOptionsSheet = true
+                    onSummaryClick = {
+                        Toast.makeText(context, "AI Summary logic here", Toast.LENGTH_SHORT).show()
                     },
                     onSendClick = {
                         viewModel.onAction(EditorAction.SaveJournal)

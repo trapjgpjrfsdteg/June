@@ -9,7 +9,7 @@ object Constants {
     const val DEVELOPER_EMAIL = "mailto:densermeerkat11@gmail.com"
     const val DEVELOPER_IMAGE = "https://github.com/DenserMeerkat.png"
     const val DEVELOPER_NAME = "Denser Meerkat"
-    const val USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+    const val USER_AGENT = "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36"
     const val YOUTUBE_REFERER = "https://www.youtube.com/"
     const val YOUTUBE_ORIGIN = "https://www.youtube.com"
 
