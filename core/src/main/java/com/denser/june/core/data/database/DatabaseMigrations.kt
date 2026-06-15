@@ -121,7 +121,11 @@ object DatabaseMigrations {
 
             db.execSQL("DROP TABLE tags")
             db.execSQL("ALTER TABLE tags_new RENAME TO tags")
+        }
+    }
 
+    val MIGRATION_4_5 = object : Migration(4, 5) {
+        override fun migrate(db: SupportSQLiteDatabase) {
             db.execSQL("ALTER TABLE `journals` ADD COLUMN `recordings` TEXT NOT NULL DEFAULT '[]'")
         }
     }

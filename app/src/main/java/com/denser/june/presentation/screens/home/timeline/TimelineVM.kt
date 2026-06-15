@@ -1,3 +1,4 @@
+@file:OptIn(UnstableApi::class)
 package com.denser.june.presentation.screens.home.timeline
 
 import android.content.Context
@@ -6,7 +7,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.datasource.DefaultDataSource
+import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
+import com.denser.june.core.utils.Constants
 import com.denser.june.core.R
 import com.denser.june.core.domain.repository.JournalRepository
 import com.denser.june.core.domain.preferences.JournalPreferences
@@ -97,24 +103,36 @@ class TimelineVM(
     private val _sliderProgress = MutableStateFlow(0f)
     val sliderProgress = _sliderProgress.asStateFlow()
 
+    @androidx.annotation.OptIn(UnstableApi::class)
     private val exoPlayer: ExoPlayer by lazy {
-        ExoPlayer.Builder(context).build().apply {
-            addListener(object : Player.Listener {
-                override fun onIsPlayingChanged(playing: Boolean) {
-                    _isPlaying.value = playing
-                }
+        val httpDataSourceFactory = DefaultHttpDataSource.Factory()
+            .setUserAgent(Constants.USER_AGENT)
+            .setAllowCrossProtocolRedirects(true)
 
-                override fun onPlaybackStateChanged(playbackState: Int) {
-                    _isLoading.value = playbackState == Player.STATE_BUFFERING
-                    if (playbackState == Player.STATE_ENDED) {
-                        _isPlaying.value = false
-                        _sliderProgress.value = 0f
-                        seekTo(0)
-                        pause()
+        val dataSourceFactory = DefaultDataSource.Factory(context, httpDataSourceFactory)
+
+        val mediaSourceFactory = DefaultMediaSourceFactory(context)
+            .setDataSourceFactory(dataSourceFactory)
+
+        ExoPlayer.Builder(context)
+            .setMediaSourceFactory(mediaSourceFactory)
+            .build().apply {
+                addListener(object : Player.Listener {
+                    override fun onIsPlayingChanged(playing: Boolean) {
+                        _isPlaying.value = playing
                     }
-                }
-            })
-        }
+
+                    override fun onPlaybackStateChanged(playbackState: Int) {
+                        _isLoading.value = playbackState == Player.STATE_BUFFERING
+                        if (playbackState == Player.STATE_ENDED) {
+                            _isPlaying.value = false
+                            _sliderProgress.value = 0f
+                            seekTo(0)
+                            pause()
+                        }
+                    }
+                })
+            }
     }
 
     init {

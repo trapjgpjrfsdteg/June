@@ -35,7 +35,7 @@ fun AISummaryPill(
     val interactionSource = remember { MutableInteractionSource() }
 
     val widthState by animateDpAsState(
-        targetValue = if (isExpanded) 340.dp else 180.dp,
+        targetValue = if (isExpanded) 340.dp else 200.dp,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioLowBouncy,
             stiffness = Spring.StiffnessLow

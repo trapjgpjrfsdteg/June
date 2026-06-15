@@ -48,8 +48,8 @@ import org.koin.compose.viewmodel.koinViewModel
 import com.denser.june.presentation.screens.home.components.AISummaryPill
 
 enum class HomeTab(val label: String, val iconRes: Int, val filledIconRes: Int) {
-    Journals("Journals", R.drawable.home_24px, R.drawable.home_24px_fill),
-    Tags("Tags", R.drawable.view_cozy_24px, R.drawable.view_cozy_24px_fill),
+    Journals("Home", R.drawable.home_24px, R.drawable.home_24px_fill),
+    Tags("Spaces", R.drawable.view_cozy_24px, R.drawable.view_cozy_24px_fill),
     Timeline("Timeline", R.drawable.event_note_24px, R.drawable.event_note_24px_fill),
 }
 
@@ -149,7 +149,7 @@ fun HomeScreen() {
             modifier = Modifier
                 .fillMaxWidth()
                 .navigationBarsPadding()
-                .padding(bottom = 76.dp),
+                .padding(bottom = 100.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             AISummaryPill()

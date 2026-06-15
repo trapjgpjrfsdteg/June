@@ -2,6 +2,7 @@ package com.denser.june.presentation.utils
 
 import android.content.Context
 import android.net.Uri
+import androidx.annotation.OptIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -12,8 +13,13 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.datasource.DefaultDataSource
+import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 
+@OptIn(UnstableApi::class)
 @Composable
 fun rememberManagedExoPlayer(
     uri: Uri,
@@ -22,11 +28,26 @@ fun rememberManagedExoPlayer(
     onIsPlayingChanged: ((Boolean) -> Unit)? = null
 ): ExoPlayer {
     val exoPlayer = remember(uri) {
-        ExoPlayer.Builder(context).build().apply {
-            setMediaItem(MediaItem.fromUri(uri))
-            prepare()
-            this.repeatMode = repeatMode
-        }
+        // 1. Create a custom HTTP data source factory and set a realistic browser User-Agent string
+        val httpDataSourceFactory = DefaultHttpDataSource.Factory()
+            .setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
+            .setAllowCrossProtocolRedirects(true)
+
+        // 2. Wrap the HTTP source factor inside standard DefaultDataSource factory
+        val dataSourceFactory = DefaultDataSource.Factory(context, httpDataSourceFactory)
+        
+        // 3. Attach it into MediaSource setup to handle streaming content types
+        val mediaSourceFactory = DefaultMediaSourceFactory(context)
+            .setDataSourceFactory(dataSourceFactory)
+
+        // 4. Instantiate the player using our custom network configurations
+        ExoPlayer.Builder(context)
+            .setMediaSourceFactory(mediaSourceFactory)
+            .build().apply {
+                setMediaItem(MediaItem.fromUri(uri))
+                prepare()
+                this.repeatMode = repeatMode
+            }
     }
 
     LaunchedEffect(repeatMode) {

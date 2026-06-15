@@ -67,6 +67,12 @@ val coreModule = module {
     single {
         OkHttpClient.Builder()
             .addInterceptor(InternetInterceptor(get()))
+            .addInterceptor { chain ->
+                val request = chain.request().newBuilder()
+                    .header("User-Agent", Constants.USER_AGENT)
+                    .build()
+                chain.proceed(request)
+            }
             .build()
     }
     single {

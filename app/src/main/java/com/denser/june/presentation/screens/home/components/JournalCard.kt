@@ -17,12 +17,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.denser.june.core.R
 import com.denser.june.core.domain.model.Journal
@@ -96,17 +98,19 @@ fun JournalCard(
             .fillMaxWidth()
             .animateContentSize()
             .clip(RoundedCornerShape(24.dp))
+            .then(
+                if (isAudioPlaying) {
+                    Modifier.border(1.dp, borderBrush!!, RoundedCornerShape(24.dp))
+                } else {
+                    Modifier.border(1.dp, Color(0xFF1F2937).copy(alpha = 0.5f), RoundedCornerShape(24.dp))
+                }
+            )
             .combinedClickable(
                 onClick = { navigator.navigateTo(Route.Editor(journal.id), isSingleTop = true) },
                 onLongClick = onLongClick
-            )
-            .then(
-                if (isAudioPlaying) {
-                    Modifier.border(2.dp, borderBrush!!, RoundedCornerShape(24.dp))
-                } else Modifier
             ),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer
+            containerColor = Color(0xFF121416)
         ),
         shape = RoundedCornerShape(24.dp)
     ) {
@@ -114,30 +118,21 @@ fun JournalCard(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 12.dp, vertical = 12.dp),
+                    .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Surface(
-                    modifier = Modifier.size(96.dp, 60.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.6f),
+                    modifier = Modifier.size(56.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    color = Color(0xFF202427),
                 ) {
-                    if (isLocked) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Icon(
-                                painter = painterResource(R.drawable.lock_24px),
-                                contentDescription = "Locked",
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    } else {
-                        Box(contentAlignment = Alignment.Center) {
-                            Icon(
-                                painter = painterResource(R.drawable.book_5_24px),
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            painter = painterResource(if (isLocked) R.drawable.lock_24px else R.drawable.book_5_24px),
+                            contentDescription = if (isLocked) "Locked" else null,
+                            tint = Color(0xFF9CA3AF),
+                            modifier = Modifier.size(24.dp)
+                        )
                     }
                 }
 
@@ -147,14 +142,24 @@ fun JournalCard(
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
                         Text(
                             text = journal.dateTime.toFullDate(),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color(0xFF9CA3AF),
+                            fontWeight = FontWeight.Medium
                         )
+                        
+                        Text(
+                            text = "•",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color(0xFF4B5563)
+                        )
+
                         if (!isLocked) {
-                            Spacer(modifier = Modifier.width(8.dp))
                             AttachmentBadges(
                                 journal = journal,
                                 expandedType = expandedType,
@@ -166,19 +171,19 @@ fun JournalCard(
                     Text(
                         text = if (isLocked) journal.title.ifBlank { "Locked Entry" }
                                else journal.title.ifBlank { journal.content.ifBlank { "Add title" } },
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold
+                        ),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = Color.White
                     )
                 }
-                FilledIconButton(
+                
+                IconButton(
                     onClick = { onActionClick?.invoke() ?: viewModel.toggleBookmark(journal.id) },
-                    colors = IconButtonDefaults.iconButtonColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                    ),
-                    shape = IconButtonDefaults.smallRoundShape
+                    modifier = Modifier.padding(8.dp)
                 ) {
                     Icon(
                         painter = painterResource(
@@ -186,9 +191,9 @@ fun JournalCard(
                             else R.drawable.bookmark_24px
                         ),
                         contentDescription = if (actionIcon != null) "Action" else "Toggle Bookmark",
+                        tint = if (journal.isBookmarked) MaterialTheme.colorScheme.primary else Color(0xFF9CA3AF)
                     )
                 }
-                Spacer(modifier = Modifier.width(4.dp))
             }
 
             AnimatedVisibility(
@@ -282,6 +287,13 @@ fun RecentJournalCard(
                 .fillMaxWidth()
                 .animateContentSize()
                 .clip(RoundedCornerShape(24.dp))
+                .then(
+                    if (isAudioPlaying) {
+                        Modifier.border(1.dp, borderBrush!!, RoundedCornerShape(24.dp))
+                    } else {
+                        Modifier.border(1.dp, Color(0xFF1F2937).copy(alpha = 0.5f), RoundedCornerShape(24.dp))
+                    }
+                )
                 .combinedClickable(
                     onClick = {
                         navigator.navigateTo(
@@ -290,63 +302,78 @@ fun RecentJournalCard(
                         )
                     },
                     onLongClick = onLongClick
-                )
-                .then(
-                    if (isAudioPlaying) {
-                        Modifier.border(2.dp, borderBrush!!, RoundedCornerShape(24.dp))
-                    } else Modifier
                 ),
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainer
+                containerColor = Color(0xFF121416)
             ),
             shape = RoundedCornerShape(24.dp)
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(12.dp)
+                    .padding(16.dp)
             ) {
-                Spacer(modifier = Modifier.height(8.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(
-                            text = journal.dateTime.toDayOfMonth(),
-                            style = MaterialTheme.typography.headlineSmall,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Text(
-                            text = journal.dateTime.toShortMonth(),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.primary,
-                        )
+                    Surface(
+                        modifier = Modifier.size(56.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        color = Color(0xFF202427),
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                painter = painterResource(R.drawable.book_5_24px),
+                                contentDescription = null,
+                                tint = Color(0xFF9CA3AF),
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
                     }
-                    Spacer(modifier = Modifier.width(20.dp))
+
+                    Spacer(modifier = Modifier.width(16.dp))
+
                     Column(modifier = Modifier.weight(1f)) {
-                        AttachmentBadges(
-                            journal = journal,
-                            expandedType = expandedType,
-                            onToggle = { expandedType = it }
-                        )
-                        Spacer(modifier = Modifier.height(2.dp))
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text(
+                                text = journal.dateTime.toFullDate(),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color(0xFF9CA3AF),
+                                fontWeight = FontWeight.Medium
+                            )
+                            
+                            Text(
+                                text = "•",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color(0xFF4B5563)
+                            )
+
+                            AttachmentBadges(
+                                journal = journal,
+                                expandedType = expandedType,
+                                onToggle = { expandedType = it }
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = journal.title.ifBlank { journal.content.ifBlank { "Untitled" } },
-                            style = MaterialTheme.typography.titleLarge,
+                            text = journal.title.ifBlank { journal.content.ifBlank { "Add title" } },
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold
+                            ),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
-                            color = MaterialTheme.colorScheme.onSurface
+                            color = Color.White
                         )
                     }
-                    FilledIconButton(
+                    
+                    IconButton(
                         onClick = { onActionClick?.invoke() ?: viewModel.toggleBookmark(journal.id) },
-                        colors = IconButtonDefaults.iconButtonColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                        ),
-                        shape = IconButtonDefaults.smallRoundShape
+                        modifier = Modifier.padding(8.dp)
                     ) {
                         Icon(
                             painter = painterResource(
@@ -354,11 +381,11 @@ fun RecentJournalCard(
                                 else R.drawable.bookmark_24px
                             ),
                             contentDescription = if (actionIcon != null) "Action" else "Toggle Bookmark",
+                            tint = if (journal.isBookmarked) MaterialTheme.colorScheme.primary else Color(0xFF9CA3AF)
                         )
                     }
-                    Spacer(modifier = Modifier.width(4.dp))
                 }
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
 
                 AnimatedVisibility(
@@ -441,7 +468,7 @@ private fun AttachmentBadge(
         modifier = Modifier
             .size(14.dp)
             .clickable(onClick = onClick),
-        tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+        tint = if (isSelected) MaterialTheme.colorScheme.primary else Color(0xFF9CA3AF)
     )
 }
 
