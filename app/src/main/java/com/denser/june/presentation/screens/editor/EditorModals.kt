@@ -16,8 +16,10 @@ import com.denser.june.presentation.components.JuneDateTimePickerMode
 import com.denser.june.presentation.screens.editor.components.AddItemSheet
 import com.denser.june.presentation.screens.editor.components.AddLocationDialog
 import com.denser.june.presentation.screens.editor.components.AddSongSheet
+import com.denser.june.presentation.screens.editor.components.DrawingCanvasDialog
 import com.denser.june.presentation.screens.editor.components.JournalEmojiPickerDialog
 import com.denser.june.presentation.screens.editor.components.JournalTagsDialog
+import com.denser.june.presentation.screens.editor.components.VoiceRecorderDialog
 import com.denser.june.presentation.screens.home.components.DeleteConfirmationSheet
 
 class EditorDialogState {
@@ -31,6 +33,8 @@ class EditorDialogState {
     var showSongSheet by mutableStateOf(false)
     var showLocationDialog by mutableStateOf(false)
     var showTagsDialog by mutableStateOf(false)
+    var showVoiceRecorder by mutableStateOf(false)
+    var showDrawingCanvas by mutableStateOf(false)
 }
 
 @Composable
@@ -70,6 +74,14 @@ fun EditorModals(
         if (success && tempVideoUri != null) {
             FileUtils.persistMedia(context, tempVideoUri!!)
                 ?.let { onAction(EditorAction.AddImage(it)) }
+        }
+    }
+
+    val audioPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            dialogState.showVoiceRecorder = true
         }
     }
 
@@ -171,13 +183,40 @@ fun EditorModals(
             onAddPhotoClick = {
                 galleryLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo))
             },
-            onAddSongClick = {
+            onAddSongClick = { query ->
                 dialogState.showAddItemSheet = false
                 dialogState.showSongSheet = true
+                // We'd need to pass query to AddSongSheet, but for now let's just open it
             },
             onAddLocationClick = {
                 dialogState.showAddItemSheet = false
                 dialogState.showLocationDialog = true
+            },
+            onVoiceRecordClick = {
+                dialogState.showAddItemSheet = false
+                audioPermissionLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
+            },
+            onDrawingClick = {
+                dialogState.showAddItemSheet = false
+                dialogState.showDrawingCanvas = true
+            }
+        )
+    }
+
+    if (dialogState.showVoiceRecorder) {
+        VoiceRecorderDialog(
+            onDismiss = { dialogState.showVoiceRecorder = false },
+            onRecordingSaved = { path ->
+                onAction(EditorAction.AddRecording(path))
+            }
+        )
+    }
+
+    if (dialogState.showDrawingCanvas) {
+        DrawingCanvasDialog(
+            onDismiss = { dialogState.showDrawingCanvas = false },
+            onDrawingSaved = { path ->
+                onAction(EditorAction.AddImage(path))
             }
         )
     }

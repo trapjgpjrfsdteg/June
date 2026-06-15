@@ -121,6 +121,8 @@ object DatabaseMigrations {
 
             db.execSQL("DROP TABLE tags")
             db.execSQL("ALTER TABLE tags_new RENAME TO tags")
+
+            db.execSQL("ALTER TABLE `journals` ADD COLUMN `recordings` TEXT NOT NULL DEFAULT '[]'")
         }
     }
 }

@@ -14,6 +14,7 @@ data class Journal(
     val images: List<String> = emptyList(),
     val location: JournalLocation? = null,
     val songDetails: SongDetails? = null,
+    val recordings: List<String> = emptyList(),
     val tags: List<String> = emptyList(),
     val createdAt: Long,
     val updatedAt: Long?,

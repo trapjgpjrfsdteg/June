@@ -12,6 +12,7 @@ data class EditorState(
     val content: String = "",
     val emoji: String? = null,
     val images: List<String> = emptyList(),
+    val recordings: List<String> = emptyList(),
     val location: JournalLocation? = null,
     val songDetails: SongDetails? = null,
     val tags: List<String> = emptyList(),

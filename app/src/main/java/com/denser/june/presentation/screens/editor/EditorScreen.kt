@@ -133,7 +133,7 @@ fun EditorScreen() {
 
     BackHandler { onBack() }
 
-    val mediaOperations = remember(state.images) {
+    val mediaOperations = remember(state.images, state.recordings) {
         MediaOperations(
             onItemSheetToggle = { dialogState.showAddItemSheet = it },
             onRemoveMedia = { viewModel.onAction(EditorAction.RemoveImage(it)) },
@@ -152,6 +152,7 @@ fun EditorScreen() {
             onSongSheetToggle = { dialogState.showSongSheet = true },
             onRemoveLocation = { viewModel.onAction(EditorAction.RemoveLocation) },
             onLocationDialogToggle = { dialogState.showLocationDialog = true },
+            onRemoveRecording = { viewModel.onAction(EditorAction.RemoveRecording(it)) }
         )
     }
 
@@ -214,23 +215,6 @@ fun EditorScreen() {
                                 "Add Emoji"
                             )
                         }
-
-                        FilledIconButton(
-                            onClick = { dialogState.showAddItemSheet = true },
-                            colors = IconButtonDefaults.filledIconButtonColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(
-                                    alpha = 0.75F
-                                )
-                            )
-                        ) {
-                            Icon(
-                                painterResource(if (dialogState.showAddItemSheet) R.drawable.add_circle_24px_fill else R.drawable.add_circle_24px),
-                                "Add Attachment"
-                            )
-                        }
-
-
                     }
                 },
                 actions = {
@@ -246,64 +230,48 @@ fun EditorScreen() {
                             Text("Save")
                         }
                     }
-
-                    Box {
-                        IconButton(
-                            onClick = {
-                                keyboardController?.hide()
-                                focusManager.clearFocus(force = true)
-                                showOptionsSheet = true
-                            },
-                            colors = IconButtonDefaults.iconButtonColors(
-                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(
-                                    alpha = 0.75f
-                                )
-                            ),
-                        ) {
-                            Icon(
-                                painterResource(R.drawable.more_vert_24px),
-                                "Options"
-                            )
-                        }
-                    }
                 }
             )
         },
         bottomBar = {
-            if (isEditorFocused) {
-                if (isMarkdownEnabled) {
-                    EditorToolbar(
-                        state = hyphenState,
-                        activeTrigger = activeTrigger,
-                        tagSuggestions = state.tagSuggestions,
-                        currentTags = state.tags,
-                        onTagSelect = onTagSelect,
-                        onSendClick = {
-                            viewModel.onAction(EditorAction.SaveJournal)
-                        },
-                        onShareClick = {
-                            val shareTitle = state.title
-                            val shareContent = state.content
-                            val shareText = if (shareTitle.isNotBlank()) "$shareTitle\n\n$shareContent" else shareContent
-                            val shareIntent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
-                                type = "text/plain"
-                                putExtra(android.content.Intent.EXTRA_TEXT, shareText)
-                            }
-                            context.startActivity(android.content.Intent.createChooser(shareIntent, "Share Journal"))
-                        },
-                        onReadClick = {
-                            Toast.makeText(context, "Reading journal...", Toast.LENGTH_SHORT).show()
-                        },
-                        modifier = Modifier
-                            .imePadding()
-                    )
-                } else {
-                    Spacer(
-                        modifier = Modifier
-                            .navigationBarsPadding()
-                            .imePadding()
-                    )
-                }
+            if (isMarkdownEnabled) {
+                EditorToolbar(
+                    state = hyphenState,
+                    activeTrigger = activeTrigger,
+                    tagSuggestions = state.tagSuggestions,
+                    currentTags = state.tags,
+                    onTagSelect = onTagSelect,
+                    onAddClick = { dialogState.showAddItemSheet = true },
+                    onOpenOptions = {
+                        keyboardController?.hide()
+                        focusManager.clearFocus(force = true)
+                        showOptionsSheet = true
+                    },
+                    onSendClick = {
+                        viewModel.onAction(EditorAction.SaveJournal)
+                    },
+                    onShareClick = {
+                        val shareTitle = state.title
+                        val shareContent = state.content
+                        val shareText = if (shareTitle.isNotBlank()) "$shareTitle\n\n$shareContent" else shareContent
+                        val shareIntent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                            type = "text/plain"
+                            putExtra(android.content.Intent.EXTRA_TEXT, shareText)
+                        }
+                        context.startActivity(android.content.Intent.createChooser(shareIntent, "Share Journal"))
+                    },
+                    onReadClick = {
+                        Toast.makeText(context, "Reading journal...", Toast.LENGTH_SHORT).show()
+                    },
+                    modifier = Modifier
+                        .imePadding()
+                )
+            } else {
+                Spacer(
+                    modifier = Modifier
+                        .navigationBarsPadding()
+                        .imePadding()
+                )
             }
         },
         containerColor = MaterialTheme.colorScheme.surface
@@ -322,10 +290,11 @@ fun EditorScreen() {
                 modifier = Modifier
                     .verticalScroll(scrollState)
             ) {
-                if (state.images.isNotEmpty() || state.songDetails != null || state.location != null) {
+                if (state.images.isNotEmpty() || state.recordings.isNotEmpty() || state.songDetails != null || state.location != null) {
                     Spacer(modifier = Modifier.height(8.dp))
                     JournalItemsPreview(
                         mediaPaths = state.images,
+                        recordings = state.recordings,
                         mediaOperations = mediaOperations,
                         songDetails = state.songDetails,
                         location = state.location,

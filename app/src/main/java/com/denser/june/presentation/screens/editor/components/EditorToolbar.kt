@@ -3,6 +3,7 @@ package com.denser.june.presentation.screens.editor.components
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -20,6 +21,7 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -58,6 +60,8 @@ fun EditorToolbar(
     tagSuggestions: List<String> = emptyList(),
     currentTags: List<String> = emptyList(),
     onTagSelect: (tag: String) -> Unit = {},
+    onAddClick: () -> Unit = {},
+    onOpenOptions: () -> Unit = {},
     onSendClick: () -> Unit = {},
     onShareClick: () -> Unit = {},
     onReadClick: () -> Unit = {},
@@ -68,17 +72,38 @@ fun EditorToolbar(
 
     Surface(
         modifier = modifier.fillMaxWidth(),
-        color = Color.Transparent,
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
         tonalElevation = 0.dp,
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .navigationBarsPadding()
-                .padding(horizontal = 8.dp, vertical = 6.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
+        Column {
+            HorizontalDivider(
+                thickness = 0.5.dp,
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp, vertical = 6.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+            if (!isFormatToolbarOpen) {
+                FilledIconButton(
+                    onClick = onAddClick,
+                    colors = IconButtonDefaults.filledIconButtonColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f)
+                    ),
+                    modifier = Modifier.size(38.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.add_circle_24px),
+                        contentDescription = "Add Item",
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
+
             val aButtonBgColor = if (isFormatToolbarOpen) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainerLow
             val aButtonContentColor = if (isFormatToolbarOpen) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f)
             
@@ -147,8 +172,23 @@ fun EditorToolbar(
                 )
             }
 
+            FilledIconButton(
+                onClick = onOpenOptions,
+                colors = IconButtonDefaults.filledIconButtonColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f)
+                ),
+                modifier = Modifier.size(38.dp)
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.more_vert_24px),
+                    contentDescription = "Options",
+                    modifier = Modifier.size(20.dp)
+                )
+            }
         }
     }
+}
 }
 
 @Composable

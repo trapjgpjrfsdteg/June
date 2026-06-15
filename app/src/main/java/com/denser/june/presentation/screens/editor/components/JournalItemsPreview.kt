@@ -19,11 +19,14 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.ToggleButton
@@ -38,11 +41,13 @@ import com.denser.june.core.R
 import com.denser.june.core.domain.model.JournalLocation
 import com.denser.june.core.domain.model.SongDetails
 import kotlinx.coroutines.launch
+import java.io.File
 
 sealed interface JournalPreviewItem {
     data class Images(val paths: List<String>) : JournalPreviewItem
     data class Song(val details: SongDetails) : JournalPreviewItem
     data class Map(val location: JournalLocation) : JournalPreviewItem
+    data class Recordings(val paths: List<String>) : JournalPreviewItem
 }
 
 data class MediaOperations(
@@ -55,12 +60,14 @@ data class MediaOperations(
     val onSongSheetToggle: (Boolean) -> Unit = {},
     val onRemoveLocation: () -> Unit = {},
     val onLocationDialogToggle: (Boolean) -> Unit = {},
+    val onRemoveRecording: (String) -> Unit = {},
 )
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun JournalItemsPreview(
     mediaPaths: List<String>,
+    recordings: List<String> = emptyList(),
     songDetails: SongDetails?,
     location: JournalLocation?,
     mediaOperations: MediaOperations,
@@ -68,9 +75,10 @@ fun JournalItemsPreview(
 ) {
     val scope = rememberCoroutineScope()
 
-    val verticalSlides = remember(mediaPaths, songDetails, location) {
+    val verticalSlides = remember(mediaPaths, songDetails, location, recordings) {
         val list = mutableListOf<JournalPreviewItem>()
         if (mediaPaths.isNotEmpty()) list.add(JournalPreviewItem.Images(mediaPaths))
+        if (recordings.isNotEmpty()) list.add(JournalPreviewItem.Recordings(recordings))
         if (songDetails != null) list.add(JournalPreviewItem.Song(songDetails))
         if (location != null) list.add(JournalPreviewItem.Map(location))
         list
@@ -123,6 +131,17 @@ fun JournalItemsPreview(
                 val idx = verticalSlides.indexOfFirst { it is JournalPreviewItem.Map }
                 if (idx != -1) scope.launch { pagerState.animateScrollToPage(idx) }
                 else mediaOperations.onLocationDialogToggle(true)
+            }
+        ),
+        ButtonConfig(
+            type = "Recordings",
+            iconRes = R.drawable.music_note_24px,
+            filledIconRes = R.drawable.music_note_24px, // No filled version in list
+            isSelected = currentSlide is JournalPreviewItem.Recordings,
+            exists = recordings.isNotEmpty(),
+            onClick = {
+                val idx = verticalSlides.indexOfFirst { it is JournalPreviewItem.Recordings }
+                if (idx != -1) scope.launch { pagerState.animateScrollToPage(idx) }
             }
         )
     )
@@ -206,12 +225,28 @@ fun JournalItemsPreview(
                                 }
                             }
                         }
+                        is JournalPreviewItem.Recordings -> {
+                            LazyRow(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(horizontal = 16.dp),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+                            ) {
+                                items(slide.paths) { path ->
+                                    RecordingItem(
+                                        path = path,
+                                        onRemove = { mediaOperations.onRemoveRecording(path) }
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
 
-        if (mediaPaths.isNotEmpty() || songDetails != null || location != null) {
+        if (mediaPaths.isNotEmpty() || songDetails != null || location != null || recordings.isNotEmpty()) {
             Spacer(modifier = Modifier.height(4.dp))
             Row(
                 modifier = Modifier
@@ -263,6 +298,50 @@ fun JournalItemsPreview(
                 ) {
                     Text(text = "Show all", style = MaterialTheme.typography.labelMedium)
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun RecordingItem(
+    path: String,
+    onRemove: () -> Unit
+) {
+    Surface(
+        color = MaterialTheme.colorScheme.surfaceContainerHighest,
+        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier.width(200.dp).height(80.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxSize().padding(12.dp),
+            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.music_note_24px),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary
+            )
+            Spacer(Modifier.width(12.dp))
+            Column(Modifier.weight(1f)) {
+                Text(
+                    text = "Recording",
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                )
+                Text(
+                    text = File(path).name,
+                    style = MaterialTheme.typography.labelSmall,
+                    maxLines = 1,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                )
+            }
+            IconButton(onClick = onRemove) {
+                Icon(
+                    painter = painterResource(R.drawable.close_24px),
+                    contentDescription = "Remove",
+                    modifier = Modifier.size(16.dp)
+                )
             }
         }
     }

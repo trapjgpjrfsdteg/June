@@ -90,7 +90,6 @@ fun JournalCard(
         null
     }
 
-    val mediaOperations = MediaOperations(onMediaClick = null)
 
     Card(
         modifier = modifier
@@ -131,14 +130,6 @@ fun JournalCard(
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
-                    } else if (journal.images.isNotEmpty()) {
-                        JournalMosaicCard(
-                            mediaList = listOf(journal.images.last()),
-                            enablePlayback = false,
-                            modifier = Modifier.fillMaxSize(),
-                            operations = mediaOperations,
-                            roundedCornerShape = RoundedCornerShape(16.dp)
-                        )
                     } else {
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
@@ -283,9 +274,6 @@ fun RecentJournalCard(
             null
         }
 
-        val displayImages = remember(journal.images) {
-            journal.images.reversed().take(3)
-        }
 
         val mediaOperations = MediaOperations(onMediaClick = null)
 
@@ -371,15 +359,7 @@ fun RecentJournalCard(
                     Spacer(modifier = Modifier.width(4.dp))
                 }
                 Spacer(modifier = Modifier.height(8.dp))
-                JournalMosaicCard(
-                    mediaList = displayImages,
-                    enablePlayback = false,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(1.7f),
-                    operations = mediaOperations,
-                    roundedCornerShape = RoundedCornerShape(16.dp)
-                )
+
 
                 AnimatedVisibility(
                     visible = expandedType != AttachmentType.NONE,

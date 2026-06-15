@@ -101,6 +101,9 @@ class EditorVM(
             is EditorAction.AddImage -> updateState { it.copy(images = it.images + action.uri) }
             is EditorAction.AddImages -> updateState { it.copy(images = it.images + action.uris) }
 
+            is EditorAction.AddRecording -> updateState { it.copy(recordings = it.recordings + action.uri) }
+            is EditorAction.RemoveRecording -> updateState { it.copy(recordings = it.recordings - action.uri) }
+
             is EditorAction.RemoveImage -> {
                 updateState { it.copy(images = it.images - action.uri) }
             }
@@ -159,6 +162,7 @@ class EditorVM(
                 original.tags != currentState.tags ||
                 original.emoji != currentState.emoji ||
                 original.images != currentState.images ||
+                original.recordings != currentState.recordings ||
                 original.location != currentState.location ||
                 original.dateTime != currentState.dateTime ||
                 original.songDetails != currentState.songDetails
@@ -213,6 +217,7 @@ class EditorVM(
                         content = journal.content,
                         emoji = journal.emoji,
                         images = journal.images,
+                        recordings = journal.recordings,
                         location = journal.location,
                         songDetails = journal.songDetails,
                         tags = journal.tags,
@@ -257,6 +262,7 @@ class EditorVM(
                 content = currentState.content,
                 emoji = currentState.emoji,
                 images = currentState.images,
+                recordings = currentState.recordings,
                 location = currentState.location,
                 songDetails = currentState.songDetails,
                 tags = currentState.tags,
@@ -276,6 +282,8 @@ class EditorVM(
             } else {
                 val imagesToDelete = existingJournal?.images.orEmpty().toSet() - currentState.images.toSet()
                 imagesToDelete.forEach { FileUtils.deleteMedia(it) }
+                val recordingsToDelete = existingJournal?.recordings.orEmpty().toSet() - currentState.recordings.toSet()
+                recordingsToDelete.forEach { FileUtils.deleteMedia(it) }
                 journalRepo.updateJournal(journalToSave)
                 existingJournal = journalToSave
                 _state.update { it.copy(isDirty = false) }
@@ -294,6 +302,7 @@ class EditorVM(
                 content = currentState.content,
                 emoji = currentState.emoji,
                 images = currentState.images,
+                recordings = currentState.recordings,
                 location = currentState.location,
                 songDetails = currentState.songDetails,
                 tags = currentState.tags,

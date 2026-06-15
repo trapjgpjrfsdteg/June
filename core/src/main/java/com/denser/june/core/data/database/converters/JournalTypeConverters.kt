@@ -3,6 +3,7 @@ package com.denser.june.core.data.database.converters
 import androidx.room.TypeConverter
 import com.denser.june.core.domain.model.JournalLocation
 import com.denser.june.core.domain.model.SongDetails
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 class JournalTypeConverters {
@@ -29,12 +30,12 @@ class JournalTypeConverters {
     }
 
     @TypeConverter
-    fun fromImagesList(value: List<String>): String {
+    fun fromStringList(value: List<String>): String {
         return json.encodeToString(value)
     }
 
     @TypeConverter
-    fun toImagesList(value: String): List<String> {
+    fun toStringList(value: String): List<String> {
         return try {
             json.decodeFromString(value)
         } catch (e: Exception) {
