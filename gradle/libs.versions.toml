@@ -1,8 +1,8 @@
 [versions]
 # Plugins
-agp = "8.13.1"
+agp = "9.2.1"
 kotlin = "2.2.21"
-ksp = "2.2.20-2.0.3"
+ksp = "2.3.2"
 
 # Core
 coreKtx = "1.18.0"
@@ -33,6 +33,7 @@ aboutLibraries = "14.2.1"
 
 # June
 mapLibrecompose = "0.13.0"
+newpipeExtractor = "0.24.2"
 osmdroid = "6.1.20"
 gmsLocation = "21.3.0"
 coroutinesPlayServices = "1.11.0"
@@ -108,6 +109,7 @@ json-path = { group = "com.jayway.jsonpath", name = "json-path", version.ref = "
 androidx-emoji2-emojipicker = { group = "androidx.emoji2", name = "emoji2-emojipicker", version.ref = "emojipicker" }
 androidx-biometric = { group = "androidx.biometric", name = "biometric", version.ref = "biometric" }
 hyphen = { group = "io.github.densermeerkat", name = "hyphen-android", version.ref = "hyphen" }
+newpipe-extractor = { group = "com.github.TeamNewPipe", name = "NewPipeExtractor", version = "v0.26.3" }
 play-app-update = { group = "com.google.android.play", name = "app-update-ktx", version.ref = "playAppUpdate" }
 
 [plugins]

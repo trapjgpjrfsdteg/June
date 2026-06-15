@@ -33,39 +33,53 @@ fun HomeBottomBar(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .navigationBarsPadding(),
+            .navigationBarsPadding()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
         contentAlignment = Alignment.BottomCenter
     ) {
-        HorizontalFloatingToolbar(
-            expanded = true,
-            colors = FloatingToolbarDefaults.standardFloatingToolbarColors(
-                toolbarContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-            ),
-            floatingActionButton = {
-                FloatingActionButton(
-                    onClick = onFabClick,
-                    shape = RoundedCornerShape(20.dp),
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.add_2_24px),
-                        contentDescription = "New Journal"
+        // Centered Navigation Pill
+        Surface(
+            shape = CircleShape,
+            color = MaterialTheme.colorScheme.surfaceContainerHigh,
+            tonalElevation = 3.dp,
+            modifier = Modifier.height(48.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .padding(horizontal = 4.dp, vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                HomeTab.entries.forEachIndexed { index, tab ->
+                    val isSelected = pagerState.currentPage == index
+
+                    ToolbarTab(
+                        selected = isSelected,
+                        iconRes = tab.iconRes,
+                        filledIconRes = tab.filledIconRes,
+                        label = tab.label,
+                        onClick = {
+                            scope.launch {
+                                pagerState.animateScrollToPage(index)
+                            }
+                        }
                     )
                 }
-            },
-        ) {
-            HomeTab.entries.forEachIndexed { index, tab ->
-                val isSelected = pagerState.currentPage == index
+            }
+        }
 
-                ToolbarTab(
-                    selected = isSelected,
-                    iconRes = tab.iconRes,
-                    filledIconRes = tab.filledIconRes,
-                    label = tab.label,
-                    onClick = {
-                        scope.launch {
-                            pagerState.animateScrollToPage(index)
-                        }
-                    }
+        // Plus / Add Journal Button shifted to the right side
+        Box(
+            modifier = Modifier.fillMaxWidth(),
+            contentAlignment = Alignment.CenterEnd
+        ) {
+            FloatingActionButton(
+                onClick = onFabClick,
+                shape = RoundedCornerShape(20.dp),
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.add_2_24px),
+                    contentDescription = "New Journal"
                 )
             }
         }

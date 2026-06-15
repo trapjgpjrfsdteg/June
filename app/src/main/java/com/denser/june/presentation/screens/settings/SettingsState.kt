@@ -29,5 +29,6 @@ data class SettingsState(
     val pendingFontName: String? = null,
     val isInternetAllowed: Boolean = true,
     val mapTheme: MapTheme = MapTheme.APP,
-    val isMarkdownEnabled: Boolean = true
+    val isMarkdownEnabled: Boolean = true,
+    val isDayProgressTimeHidden: Boolean = false
 )

@@ -21,6 +21,7 @@ import com.denser.june.presentation.navigation.AppNavigator
 import com.denser.june.presentation.navigation.Route
 import com.denser.june.presentation.components.JuneBadge
 import org.koin.compose.koinInject
+import androidx.compose.ui.platform.LocalContext
 
 import com.denser.june.core.R
 
@@ -61,6 +62,14 @@ fun TimelineJournalTile(
     onClick: () -> Unit,
     onLongClick: (() -> Unit)? = null
 ) {
+    val context = LocalContext.current
+    val sharedPrefs = remember(context) {
+        context.getSharedPreferences("journal_locks", android.content.Context.MODE_PRIVATE)
+    }
+    val isLocked = remember(journal.id) {
+        sharedPrefs.getBoolean(journal.id, false)
+    }
+
     val wordCount = remember(journal.content) {
         val trimmed = journal.content.trim()
         if (trimmed.isEmpty()) 0
@@ -96,7 +105,7 @@ fun TimelineJournalTile(
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = journal.title,
+                    text = if (isLocked) journal.title.ifBlank { "Locked Entry" } else journal.title,
                     style = MaterialTheme.typography.titleMedium,
                     maxLines = 1,
                     minLines = 1,
@@ -113,38 +122,48 @@ fun TimelineJournalTile(
                         icon = if (journal.cloudId != null) R.drawable.cloud_24px else R.drawable.devices_24px,
                         label = if (journal.cloudId != null) "Cloud" else "Local"
                     )
-                    JuneBadge(
-                        show = mediaCount > 0,
-                        icon = R.drawable.photo_24px,
-                        label = if (mediaCount > 1) "$mediaCount" else null
-                    )
-                    JuneBadge(
-                        show = hasMusic,
-                        icon = R.drawable.music_note_24px
-                    )
-                    JuneBadge(
-                        show = hasLocation,
-                        icon = R.drawable.location_on_24px
-                    )
-                    JuneBadge(
-                        show = tagCount > 0,
-                        icon = R.drawable.sell_24px,
-                        label = "$tagCount"
-                    )
+                    if (isLocked) {
+                        JuneBadge(
+                            show = true,
+                            icon = R.drawable.lock_24px,
+                            label = "Locked"
+                        )
+                    } else {
+                        JuneBadge(
+                            show = mediaCount > 0,
+                            icon = R.drawable.photo_24px,
+                            label = if (mediaCount > 1) "$mediaCount" else null
+                        )
+                        JuneBadge(
+                            show = hasMusic,
+                            icon = R.drawable.music_note_24px
+                        )
+                        JuneBadge(
+                            show = hasLocation,
+                            icon = R.drawable.location_on_24px
+                        )
+                        JuneBadge(
+                            show = tagCount > 0,
+                            icon = R.drawable.sell_24px,
+                            label = "$tagCount"
+                        )
+                    }
                 }
             }
 
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-                modifier = Modifier.padding(start = 8.dp)
-            ) {
-                val emoji = journal.emoji
-                if (emoji != null) {
-                    Text(
-                        text = emoji,
-                        fontSize = 24.sp
-                    )
+            if (!isLocked) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                    modifier = Modifier.padding(start = 8.dp)
+                ) {
+                    val emoji = journal.emoji
+                    if (emoji != null) {
+                        Text(
+                            text = emoji,
+                            fontSize = 24.sp
+                        )
+                    }
                 }
             }
         }

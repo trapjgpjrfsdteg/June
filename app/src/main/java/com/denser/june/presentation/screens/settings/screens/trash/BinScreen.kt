@@ -21,7 +21,6 @@ import com.denser.june.presentation.components.JunePlaceholderPage
 import com.denser.june.presentation.components.JuneTopAppBar
 import com.denser.june.presentation.navigation.AppNavigator
 import com.denser.june.presentation.screens.home.components.JournalCard
-import com.denser.june.presentation.screens.home.components.RecentJournalCard
 import com.denser.june.presentation.components.JuneConfirmationDialog
 import com.denser.june.presentation.screens.home.components.JournalOptionsSheet
 import com.denser.june.presentation.screens.home.components.DeleteConfirmationSheet
@@ -171,23 +170,13 @@ fun BinScreen() {
                         )
                     }
                     items(deletedJournals, key = { it.id }) { journal ->
-                        if (journal.images.isNotEmpty()) {
-                            RecentJournalCard(
-                                journal = journal,
-                                modifier = Modifier,
-                                actionIcon = R.drawable.restore_from_trash_24px,
-                                onActionClick = { binVM.restoreJournal(journal.id) },
-                                onLongClick = { selectedJournalForOptions = journal }
-                            )
-                        } else {
-                            JournalCard(
-                                journal = journal,
-                                modifier = Modifier,
-                                actionIcon = R.drawable.restore_from_trash_24px,
-                                onActionClick = { binVM.restoreJournal(journal.id) },
-                                onLongClick = { selectedJournalForOptions = journal }
-                            )
-                        }
+                        JournalCard(
+                            journal = journal,
+                            modifier = Modifier,
+                            actionIcon = R.drawable.restore_from_trash_24px,
+                            onActionClick = { binVM.restoreJournal(journal.id) },
+                            onLongClick = { selectedJournalForOptions = journal }
+                        )
                     }
                 }
             }

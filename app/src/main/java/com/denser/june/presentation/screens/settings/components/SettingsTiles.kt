@@ -157,6 +157,14 @@ object SettingsTileRegistry {
                     content = { PaletteSelectionSettingsItem() }
                 ),
                 SettingTile(
+                    key = "DAY_PROGRESS_TIME_HIDDEN",
+                    title = "Hide time in Day Progress",
+                    subtitle = { _, state -> if (state.isDayProgressTimeHidden) "Only show progress percentage" else "Show time and progress percentage" },
+                    category = "Appearance",
+                    keywords = listOf("day", "progress", "time", "clock", "hide", "percentage", "indicator"),
+                    content = { DayProgressTimeHiddenTile() }
+                ),
+                SettingTile(
                     key = "APP_LOCK",
                     title = "App Lock",
                     subtitle = { _, state ->

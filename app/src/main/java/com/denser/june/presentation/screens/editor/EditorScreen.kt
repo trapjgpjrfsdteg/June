@@ -27,6 +27,7 @@ import com.denser.june.presentation.navigation.AppNavigator
 import com.denser.june.presentation.navigation.Route
 import com.denser.june.presentation.components.JuneTopAppBar
 import com.denser.june.presentation.screens.home.components.JournalOptionsSheet
+import com.denser.june.presentation.screens.home.components.JournalLockDialog
 import com.denser.june.presentation.screens.editor.components.JournalItemsPreview
 import com.denser.june.presentation.screens.editor.components.MediaOperations
 import com.denser.june.core.domain.preferences.JournalPreferences
@@ -59,6 +60,15 @@ fun EditorScreen() {
     val scrollState = rememberScrollState()
     val context = LocalContext.current
 
+    val sharedPrefs = remember(context) {
+        context.getSharedPreferences("journal_locks", android.content.Context.MODE_PRIVATE)
+    }
+    val isJournalLocked = remember(state.journalId) {
+        state.journalId?.let { sharedPrefs.getBoolean(it, false) } ?: false
+    }
+    var isUnlockedSession by remember(state.journalId) { mutableStateOf(false) }
+    val isBlocked = isJournalLocked && !isUnlockedSession
+
     val dialogState = rememberEditorDialogState()
     var showOptionsSheet by remember { mutableStateOf(false) }
     val isEditorReady = !state.isLoading
@@ -86,11 +96,12 @@ fun EditorScreen() {
         }
     }
 
-    LaunchedEffect(isEditorReady) {
-        if (isEditorReady && state.content.isNotEmpty()) {
+    LaunchedEffect(isEditorReady, isBlocked) {
+        if (isEditorReady && !isBlocked && state.content.isNotEmpty()) {
             hyphenState.setMarkdown(state.content)
         }
     }
+
 
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
@@ -145,7 +156,27 @@ fun EditorScreen() {
     }
 
 
-    Scaffold(
+    if (isBlocked) {
+        Box(
+            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface),
+            contentAlignment = Alignment.Center
+        ) {}
+        JournalLockDialog(
+            journalId = state.journalId ?: "",
+            isLocked = true,
+            onLockStateChanged = {},
+            onDismiss = {
+                if (!isUnlockedSession) {
+                    onBack()
+                }
+            },
+            temporaryUnlockOnly = true,
+            onUnlockSuccess = {
+                isUnlockedSession = true
+            }
+        )
+    } else {
+        Scaffold(
         topBar = {
             JuneTopAppBar(
                 title = {},
@@ -247,6 +278,22 @@ fun EditorScreen() {
                         tagSuggestions = state.tagSuggestions,
                         currentTags = state.tags,
                         onTagSelect = onTagSelect,
+                        onSendClick = {
+                            viewModel.onAction(EditorAction.SaveJournal)
+                        },
+                        onShareClick = {
+                            val shareTitle = state.title
+                            val shareContent = state.content
+                            val shareText = if (shareTitle.isNotBlank()) "$shareTitle\n\n$shareContent" else shareContent
+                            val shareIntent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                                type = "text/plain"
+                                putExtra(android.content.Intent.EXTRA_TEXT, shareText)
+                            }
+                            context.startActivity(android.content.Intent.createChooser(shareIntent, "Share Journal"))
+                        },
+                        onReadClick = {
+                            Toast.makeText(context, "Reading journal...", Toast.LENGTH_SHORT).show()
+                        },
                         modifier = Modifier
                             .imePadding()
                     )
@@ -330,30 +377,6 @@ fun EditorScreen() {
                             contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                         ),
                         shape = ButtonGroupDefaults.connectedLeadingButtonShapes().shape,
-                        contentPadding = PaddingValues(0.dp),
-                        modifier = Modifier
-                            .height(32.dp)
-                            .width(38.dp)
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.today_24px),
-                            contentDescription = "Date and Time Picker",
-                            modifier = Modifier.size(16.dp)
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Button(
-                        onClick = {
-                            keyboardController?.hide()
-                            focusManager.clearFocus()
-                            dialogState.datePickerInitialTab = 0
-                            dialogState.showDatePicker = true
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
-                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                        ),
-                        shape = ButtonGroupDefaults.connectedMiddleButtonShapes().shape,
                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
                         modifier = Modifier.height(32.dp)
                     ) {
@@ -519,5 +542,6 @@ fun EditorScreen() {
                 }
             )
         }
+    }
     }
 }

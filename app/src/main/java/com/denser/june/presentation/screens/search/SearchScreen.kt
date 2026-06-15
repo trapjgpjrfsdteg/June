@@ -29,7 +29,6 @@ import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -43,11 +42,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.denser.june.core.R
@@ -134,35 +129,30 @@ fun SearchScreen() {
                         selected = isBookmarked,
                         onClick = viewModel::toggleBookmarkFilter,
                         icon = R.drawable.bookmark_added_24px_fill,
-                        prefix = "is:",
                         label = "Bookmarked"
                     )
                     SearchFilterChip(
                         selected = isDraft,
                         onClick = viewModel::toggleDraftFilter,
                         icon = R.drawable.edit_24px_fill,
-                        prefix = "is:",
                         label = "Draft"
                     )
                     SearchFilterChip(
                         selected = hasMedia,
                         onClick = viewModel::toggleMediaFilter,
                         icon = R.drawable.photo_24px_fill,
-                        prefix = "has:",
                         label = "Media"
                     )
                     SearchFilterChip(
                         selected = hasSong,
                         onClick = viewModel::toggleSongFilter,
                         icon = R.drawable.music_note_24px,
-                        prefix = "has:",
                         label = "Music"
                     )
                     SearchFilterChip(
                         selected = hasLocation,
                         onClick = viewModel::toggleLocationFilter,
                         icon = R.drawable.location_on_24px_fill,
-                        prefix = "has:",
                         label = "Location"
                     )
                     Spacer(modifier = Modifier.width(16.dp))
@@ -232,42 +222,18 @@ fun SearchFilterChip(
     selected: Boolean,
     onClick: () -> Unit,
     icon: Int,
-    prefix: String,
     label: String,
 ) {
     FilterChip(
         selected = selected,
         onClick = onClick,
         label = {
-            Text(
-                text = buildAnnotatedString {
-                    withStyle(
-                        style = SpanStyle(
-                            fontWeight = FontWeight.Normal,
-                            color = LocalContentColor.current.copy(alpha = 0.6f)
-                        )
-                    ) {
-                        append(prefix)
-                    }
-                    withStyle(
-                        style = SpanStyle(
-                            fontWeight = FontWeight.Medium
-                        )
-                    ) {
-                        append(label)
-                    }
-                }
+            Icon(
+                painter = painterResource(icon),
+                contentDescription = label,
+                modifier = Modifier.size(18.dp)
             )
         },
-        leadingIcon = if (selected) {
-            {
-                Icon(
-                    painterResource(icon),
-                    null,
-                    Modifier.size(18.dp)
-                )
-            }
-        } else null,
         colors = FilterChipDefaults.filterChipColors(
             selectedContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
             selectedLabelColor = MaterialTheme.colorScheme.onTertiaryContainer,

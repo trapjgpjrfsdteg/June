@@ -28,4 +28,6 @@
     <string name="mapbox">Mapbox</string>
     <string name="api_key_valid">API Key is valid and verified!</string>
     <string name="api_key_invalid">Invalid API Key. Please verify.</string>
+    <string name="hide_time_in_day_progress">Hide time in Day Progress</string>
+    <string name="hide_time_in_day_progress_desc">Only show progress percentage in the indicator</string>
 </resources>

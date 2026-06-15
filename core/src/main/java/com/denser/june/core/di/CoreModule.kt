@@ -11,6 +11,7 @@ import com.denser.june.core.data.preferences.SyncPreferencesImpl
 import com.denser.june.core.data.preferences.ThemePreferencesImpl
 import com.denser.june.core.data.remote.SonglinkApiService
 import com.denser.june.core.data.remote.SpotifyScraper
+import com.denser.june.core.data.remote.YouTubeScraper
 import com.denser.june.core.data.repository.JournalRepositoryImpl
 import com.denser.june.core.data.repository.SongRepositoryImpl
 import com.denser.june.core.data.sync.WebDAVProvider
@@ -84,6 +85,7 @@ val coreModule = module {
 
     single { get<Retrofit>().create(SonglinkApiService::class.java) }
     singleOf(::SpotifyScraper)
+    singleOf(::YouTubeScraper)
     singleOf(::SongRepositoryImpl).bind<SongRepository>()
 
     single { SyncPreferencesImpl(get(named("PreferencesDataStore"))) }.bind<SyncPreferences>()

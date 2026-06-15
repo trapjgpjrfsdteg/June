@@ -31,4 +31,5 @@ sealed interface SettingsAction {
     data class OnTimeFormatChange(val timeFormat: TimeFormat) : SettingsAction
     data class OnMapThemeChange(val theme: MapTheme) : SettingsAction
     data class OnMarkdownToggle(val enabled: Boolean) : SettingsAction
+    data class OnDayProgressTimeHiddenToggle(val hidden: Boolean) : SettingsAction
 }

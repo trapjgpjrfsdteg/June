@@ -26,7 +26,9 @@ fun rememberSongPlayerState(
 ): SongPlayerState {
     val isInternetAllowed = LocalInternetAllowed.current
     val uri = remember(previewUrl, isInternetAllowed) {
-        if (isInternetAllowed) previewUrl?.toUri() else null
+        if (isInternetAllowed) {
+            previewUrl?.replace("http://", "https://")?.toUri()
+        } else null
     }
     val exoPlayer = uri?.let {
         rememberManagedExoPlayer(uri = it, repeatMode = Player.REPEAT_MODE_OFF)

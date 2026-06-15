@@ -34,6 +34,7 @@ class JournalPreferencesImpl(
         val MAPTILER_KEY_VERIFIED = booleanPreferencesKey("maptiler_key_verified")
         val STADIA_KEY_VERIFIED = booleanPreferencesKey("stadia_key_verified")
         val MAPBOX_KEY_VERIFIED = booleanPreferencesKey("mapbox_key_verified")
+        val DAY_PROGRESS_TIME_HIDDEN = booleanPreferencesKey("day_progress_time_hidden")
         const val DEFAULT_REMINDER_TIME = "21:14"
     }
 
@@ -192,6 +193,15 @@ class JournalPreferencesImpl(
                 MapStyleProvider.STADIA -> preferences[STADIA_KEY_VERIFIED] = verified
                 MapStyleProvider.MAPBOX -> preferences[MAPBOX_KEY_VERIFIED] = verified
             }
+        }
+    }
+
+    override fun isDayProgressTimeHidden(): Flow<Boolean> = dataStore.data
+        .map { preferences -> preferences[DAY_PROGRESS_TIME_HIDDEN] ?: false }
+
+    override suspend fun setDayProgressTimeHidden(hidden: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[DAY_PROGRESS_TIME_HIDDEN] = hidden
         }
     }
 }

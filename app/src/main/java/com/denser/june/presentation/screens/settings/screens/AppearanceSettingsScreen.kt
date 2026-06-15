@@ -121,6 +121,15 @@ fun AppearanceSettingsScreen() {
                     }
                 }
 
+                val dayProgressTile = appearanceTiles["DAY_PROGRESS_TIME_HIDDEN"]
+                if (dayProgressTile != null) {
+                    item {
+                        SettingSection {
+                            dayProgressTile.content()
+                        }
+                    }
+                }
+
                 item {
                     Spacer(modifier = Modifier.height(32.dp))
                 }

@@ -58,7 +58,8 @@ class SettingsVM(
             fontPrefs.getAppFont(),
             privacyPrefs.getIsInternetAllowedFlow(),
             journalPrefs.mapTheme(),
-            journalPrefs.isMarkdownEnabled()
+            journalPrefs.isMarkdownEnabled(),
+            journalPrefs.isDayProgressTimeHidden()
         )
     ) { array ->
         val local = array[0] as SettingsState
@@ -74,6 +75,7 @@ class SettingsVM(
             isInternetAllowed = array[14] as Boolean,
             mapTheme = array[15] as MapTheme,
             isMarkdownEnabled = array[16] as Boolean,
+            isDayProgressTimeHidden = array[17] as Boolean,
 
             appTheme = local.appTheme.copy(
                 seedColor = array[1] as Int,
@@ -153,6 +155,7 @@ class SettingsVM(
                 is SettingsAction.OnTimeFormatChange -> journalPrefs.setTimeFormat(action.timeFormat)
                 is SettingsAction.OnMapThemeChange -> journalPrefs.setMapTheme(action.theme)
                 is SettingsAction.OnMarkdownToggle -> journalPrefs.setMarkdownEnabled(action.enabled)
+                is SettingsAction.OnDayProgressTimeHiddenToggle -> journalPrefs.setDayProgressTimeHidden(action.hidden)
             }
         }
     }

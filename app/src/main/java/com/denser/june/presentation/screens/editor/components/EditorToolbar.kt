@@ -41,6 +41,15 @@ import com.denser.hyphen.state.HyphenTextState
 import com.denser.june.core.R
 import com.denser.june.presentation.utils.TagUtils
 
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+
 @Composable
 fun EditorToolbar(
     state: HyphenTextState,
@@ -49,14 +58,18 @@ fun EditorToolbar(
     tagSuggestions: List<String> = emptyList(),
     currentTags: List<String> = emptyList(),
     onTagSelect: (tag: String) -> Unit = {},
+    onSendClick: () -> Unit = {},
+    onShareClick: () -> Unit = {},
+    onReadClick: () -> Unit = {},
 ) {
     val triggerPrefix = activeTrigger?.config?.trigger
     val isTagMode = triggerPrefix == "@" || triggerPrefix == "#"
+    var isFormatToolbarOpen by rememberSaveable { mutableStateOf(false) }
 
     Surface(
         modifier = modifier.fillMaxWidth(),
-        color = MaterialTheme.colorScheme.surfaceContainer,
-        tonalElevation = 3.dp,
+        color = Color.Transparent,
+        tonalElevation = 0.dp,
     ) {
         Row(
             modifier = Modifier
@@ -64,7 +77,26 @@ fun EditorToolbar(
                 .navigationBarsPadding()
                 .padding(horizontal = 8.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            val aButtonBgColor = if (isFormatToolbarOpen) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainerLow
+            val aButtonContentColor = if (isFormatToolbarOpen) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f)
+            
+            FilledIconButton(
+                onClick = { isFormatToolbarOpen = !isFormatToolbarOpen },
+                colors = IconButtonDefaults.filledIconButtonColors(
+                    containerColor = aButtonBgColor,
+                    contentColor = aButtonContentColor
+                ),
+                modifier = Modifier.size(38.dp)
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.format_color_text_24px),
+                    contentDescription = "Format Text",
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+
             Box(modifier = Modifier.weight(1f).height(40.dp)) {
                 if (isTagMode) {
                     TagChipsContent(
@@ -74,49 +106,47 @@ fun EditorToolbar(
                         hyphenState = state,
                         onTagSelect = onTagSelect,
                     )
-                } else {
+                } else if (isFormatToolbarOpen) {
                     FormatButtonsContent(state = state)
                 }
             }
 
-            VerticalDivider(
-                modifier = Modifier
-                    .height(24.dp)
-                    .padding(horizontal = 4.dp),
-                color = MaterialTheme.colorScheme.outlineVariant,
-            )
-
-            IconButton(
+            FilledIconButton(
                 onClick = { state.undo() },
                 enabled = state.canUndo,
-                modifier = Modifier.size(36.dp),
-                colors = IconButtonDefaults.iconButtonColors(
-                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
+                colors = IconButtonDefaults.filledIconButtonColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f),
+                    disabledContainerColor = MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = 0.5f),
+                    disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
                 ),
+                modifier = Modifier.size(38.dp)
             ) {
                 Icon(
-                    painterResource(R.drawable.undo_24px),
+                    painter = painterResource(R.drawable.undo_24px),
                     contentDescription = "Undo",
-                    modifier = Modifier.size(20.dp),
+                    modifier = Modifier.size(20.dp)
                 )
             }
 
-            IconButton(
+            FilledIconButton(
                 onClick = { state.redo() },
                 enabled = state.canRedo,
-                modifier = Modifier.size(36.dp),
-                colors = IconButtonDefaults.iconButtonColors(
-                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
+                colors = IconButtonDefaults.filledIconButtonColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f),
+                    disabledContainerColor = MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = 0.5f),
+                    disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
                 ),
+                modifier = Modifier.size(38.dp)
             ) {
                 Icon(
-                    painterResource(R.drawable.redo_24px),
+                    painter = painterResource(R.drawable.redo_24px),
                     contentDescription = "Redo",
-                    modifier = Modifier.size(20.dp),
+                    modifier = Modifier.size(20.dp)
                 )
             }
+
         }
     }
 }
