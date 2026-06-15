@@ -1,7 +1,7 @@
 # June
 
 <p align="center">
-  <img src="assets/icon.png" alt="App Icon" width="128"/>
+  <img src="fastlane/metadata/android/en-US/images/icon.png" alt="App Icon" width="128"/>
 </p>
 
 <p align="center">
@@ -22,12 +22,12 @@
 </p>
 
 <p align="center">
-  <img src="assets/screenshots/editor.png" width="32%" style="border-radius:12px; margin: 1px;">
-  <img src="assets/screenshots/timeline-calendar.png" width="32%" style="border-radius:12px; margin: 1px;">
-  <img src="assets/screenshots/home.png" width="32%" style="border-radius:12px; margin: 1px;">
-  <img src="assets/screenshots/timeline-map.png" width="32%" style="border-radius:12px; margin: 1px;">
-  <img src="assets/screenshots/timeline-music.png" width="32%" style="border-radius:12px; margin: 1px;">
-  <img src="assets/screenshots/cloud-sync.png" width="32%" style="border-radius:12px; margin: 1px;">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" width="32%" style="border-radius:12px; margin: 1px;">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" width="32%" style="border-radius:12px; margin: 1px;">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" width="32%" style="border-radius:12px; margin: 1px;">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" width="32%" style="border-radius:12px; margin: 1px;">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/5.png" width="32%" style="border-radius:12px; margin: 1px;">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/6.png" width="32%" style="border-radius:12px; margin: 1px;">
 </p>
 
 ## Core Features
@@ -85,25 +85,11 @@ June is built with modern Android development practices, leveraging **Jetpack Co
 
 ## Building Locally
 
-To set up June on your local machine, follow these steps:
+To build June locally:
+1. Clone the repository: `git clone https://github.com/DenserMeerkat/June.git`
+2. Open the project in **Android Studio** (configured with **JDK 17**).
+3. Select the `debug` build variant and run it on your device or emulator.
 
-### 1. Prerequisites
-
-- **Android Studio:** Latest stable version recommended.
-- **JDK 17:** The project is configured to use Java 17 toolchain.
-
-### 2. Clone the Repository
-
-```bash
-git clone https://github.com/DenserMeerkat/June.git
-cd June
-```
-
-### 3. Build & Run
-
-1. Open the project in Android Studio and let Gradle sync.
-2. Select the debug build variant (default).
-3. Click Run.
 
 ## Security & Verifiability
 
