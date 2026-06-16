@@ -209,7 +209,7 @@ fun DayProgressIndicator() {
     val minutes = (displaySeconds % 3600) / 60
     val seconds = displaySeconds % 60
     val formattedTime = String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, seconds)
-    val formattedPercent = String.format(Locale.getDefault(), "%.2f%%", displayProgress * 100)
+    val formattedPercent = String.format(Locale.getDefault(), "%d%%", (displayProgress * 100).toInt())
 
     Box(
         modifier = Modifier
