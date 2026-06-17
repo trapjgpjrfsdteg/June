@@ -32,6 +32,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.delay
 import com.denser.hyphen.model.MarkupStyleRange
+import com.denser.june.presentation.screens.editor.rememberToggleState
+import com.denser.june.presentation.screens.editor.components.JuneRichEditor
 
 @Composable
 fun JournalContentEditor(
@@ -111,6 +113,8 @@ fun JournalContentEditor(
         )
     }
 
+    val toggleState = rememberToggleState()
+
     if (!isMarkdownEnabled) {
         TextField(
             value = rawContent,
@@ -142,12 +146,11 @@ fun JournalContentEditor(
         return
     }
 
-    HyphenTextField(
+    JuneRichEditor(
         state = state,
-        linkConfig = linkConfig,
-        showDefaultSuggestionsPopup = false,
-        triggerPopup = {},
+        toggleState = toggleState,
         onMarkdownChange = onMarkdownChange,
+        linkConfig = linkConfig,
         modifier = modifier
             .fillMaxWidth()
             .focusRequester(focusRequester)

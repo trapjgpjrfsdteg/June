@@ -11,6 +11,7 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.text.input.insert
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -400,34 +401,45 @@ private fun RowScope.FormatRowContent(
     var isAdvancedOpen by rememberSaveable { mutableStateOf(false) }
     val haptic = LocalHapticFeedback.current
 
-    val infiniteTransition = rememberInfiniteTransition(label = "aiGlowTransition")
-    val glowAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.15f,
-        targetValue = 0.45f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1400, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
+    // AI Writing Button at the absolute left
+    val aiPrimaryColor = MaterialTheme.colorScheme.primary
+    FilledIconButton(
+        onClick = {
+            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+            onAIActionClick()
+        },
+        colors = IconButtonDefaults.filledIconButtonColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = 0.4f),
+            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
         ),
-        label = "glowAlpha animate"
-    )
-    val glowRadiusScale by infiniteTransition.animateFloat(
-        initialValue = 0.95f,
-        targetValue = 1.3f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1400, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "glowRadius animate"
-    )
-
-    FormatToggleButton(
-        icon = R.drawable.format_bold_24px,
-        contentDescription = "Bold",
-        isActive = state.hasStyle(MarkupStyle.Bold),
-        onClick = { state.toggleStyle(MarkupStyle.Bold) },
         shape = leadingShape,
         modifier = Modifier.size(buttonSize)
-    )
+    ) {
+        Box(modifier = Modifier.size(20.dp)) {
+            Icon(
+                painter = painterResource(R.drawable.edit_24px),
+                contentDescription = "AI Assistant Actions",
+                modifier = Modifier
+                    .size(16.dp)
+                    .align(Alignment.BottomEnd)
+            )
+            androidx.compose.foundation.Canvas(
+                modifier = Modifier
+                    .size(8.dp)
+                    .align(Alignment.TopStart)
+            ) {
+                val starPath = androidx.compose.ui.graphics.Path().apply {
+                    moveTo(size.width / 2f, 0f)
+                    quadraticTo(size.width / 2f, size.height / 2f, size.width, size.height / 2f)
+                    quadraticTo(size.width / 2f, size.height / 2f, size.width / 2f, size.height)
+                    quadraticTo(size.width / 2f, size.height / 2f, 0f, size.height / 2f)
+                    quadraticTo(size.width / 2f, size.height / 2f, size.width / 2f, 0f)
+                    close()
+                }
+                drawPath(starPath, aiPrimaryColor)
+            }
+        }
+    }
 
     Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.BottomCenter) {
         Row(
@@ -442,6 +454,13 @@ private fun RowScope.FormatRowContent(
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                 verticalAlignment = Alignment.Bottom
             ) {
+                FormatToggleButton(
+                    icon = R.drawable.format_bold_24px,
+                    contentDescription = "Bold",
+                    isActive = state.hasStyle(MarkupStyle.Bold),
+                    onClick = { state.toggleStyle(MarkupStyle.Bold) },
+                    modifier = Modifier.size(buttonSize)
+                )
                 FormatToggleButton(
                     icon = R.drawable.format_italic_24px,
                     contentDescription = "Italic",
@@ -465,59 +484,8 @@ private fun RowScope.FormatRowContent(
                 )
             }
 
-            // Group 2: Center-aligned custom AI action button
-            Box(
-                modifier = Modifier
-                    .padding(horizontal = 4.dp)
-                    .align(Alignment.Bottom),
-                contentAlignment = Alignment.Center
-            ) {
-                val primaryColor = MaterialTheme.colorScheme.primary
-                FilledIconButton(
-                    onClick = {
-                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                        onAIActionClick()
-                    },
-                    colors = IconButtonDefaults.filledIconButtonColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.9f),
-                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                    ),
-                    shape = CircleShape,
-                    modifier = Modifier
-                        .size(buttonSize)
-                        .drawBehind { // Fixed inline reference error
-                            drawCircle(
-                                color = primaryColor.copy(alpha = glowAlpha),
-                                radius = (size.minDimension / 2f) * glowRadiusScale
-                            )
-                        }
-                ) {
-                    Box(modifier = Modifier.size(24.dp)) {
-                        Icon(
-                            painter = painterResource(R.drawable.edit_24px),
-                            contentDescription = "AI Assistant Actions",
-                            modifier = Modifier
-                                .size(18.dp)
-                                .align(Alignment.BottomEnd)
-                        )
-                        androidx.compose.foundation.Canvas(
-                            modifier = Modifier
-                                .size(9.dp)
-                                .align(Alignment.TopStart)
-                        ) {
-                            val starPath = androidx.compose.ui.graphics.Path().apply {
-                                moveTo(size.width / 2f, 0f)
-                                quadraticTo(size.width / 2f, size.height / 2f, size.width, size.height / 2f)
-                                quadraticTo(size.width / 2f, size.height / 2f, size.width / 2f, size.height)
-                                quadraticTo(size.width / 2f, size.height / 2f, 0f, size.height / 2f)
-                                quadraticTo(size.width / 2f, size.height / 2f, size.width / 2f, 0f)
-                                close()
-                            }
-                            drawPath(starPath, primaryColor)
-                        }
-                    }
-                }
-            }
+            // Group 2: Center-aligned spacing or additional tools can go here
+            Spacer(modifier = Modifier.width(8.dp))
 
             // Group 3: Right-aligned collapsible & functional structural options
             Row(
@@ -550,8 +518,8 @@ private fun RowScope.FormatRowContent(
                                         state.toggleStyle(MarkupStyle.BulletList)
                                         isListsOpen = false
                                     },
-                                    icon = R.drawable.format_list_bulleted_24px,
-                                    contentDescription = "Bullet List",
+                                    icon = R.drawable.ic_list_bulleted_2,
+                                    contentDescription = "Dot Point List",
                                     modifier = Modifier.size(buttonSize)
                                 )
                                 FormatToggleButton(
@@ -560,19 +528,64 @@ private fun RowScope.FormatRowContent(
                                         state.toggleStyle(MarkupStyle.OrderedList)
                                         isListsOpen = false
                                     },
-                                    icon = R.drawable.format_list_numbered_24px,
-                                    contentDescription = "Ordered List",
+                                    icon = R.drawable.ic_list_numbered_2,
+                                    contentDescription = "Numbered List",
                                     modifier = Modifier.size(buttonSize)
                                 )
                                 FormatToggleButton(
-                                    isActive = false,
-                                    onClick = { isListsOpen = false },
-                                    icon = R.drawable.check_24px,
-                                    contentDescription = "Check List Token Placeholder",
+                                    isActive = state.hasStyle(MarkupStyle.CheckboxUnchecked) || state.hasStyle(MarkupStyle.CheckboxChecked),
+                                    onClick = {
+                                        state.toggleStyle(MarkupStyle.CheckboxUnchecked)
+                                        isListsOpen = false
+                                    },
+                                    icon = R.drawable.ic_list_check_2,
+                                    contentDescription = "Check off List",
+                                    modifier = Modifier.size(buttonSize)
+                                )
+                                FormatToggleButton(
+                                    isActive = false, // Toggle List is a manual prefix action
+                                    onClick = {
+                                        state.textFieldState.edit {
+                                            val cursor = selection.start
+                                            val text = asCharSequence()
+                                            val lastNewline = text.lastIndexOf('\n', (cursor - 1).coerceAtLeast(0))
+                                            val lineStart = if (lastNewline == -1) 0 else lastNewline + 1
+                                            
+                                            if (text.startsWith(">> ", lineStart)) {
+                                                replace(lineStart, lineStart + 3, "")
+                                            } else {
+                                                insert(lineStart, ">> ")
+                                            }
+                                        }
+                                        isListsOpen = false
+                                    },
+                                    icon = R.drawable.ic_list_toggle_2,
+                                    contentDescription = "Toggle List",
                                     modifier = Modifier.size(buttonSize)
                                 )
                             }
                         }
+                    }
+
+                    val isToggleActive = remember(state.text, state.selection) {
+                        val cursor = state.selection.start
+                        val text = state.text
+                        val lastNewline = text.lastIndexOf('\n', (cursor - 1).coerceAtLeast(0))
+                        val lineStart = if (lastNewline == -1) 0 else lastNewline + 1
+                        text.startsWith(">> ", lineStart)
+                    }
+
+                    val isListActive = state.hasStyle(MarkupStyle.BulletList) || 
+                                     state.hasStyle(MarkupStyle.OrderedList) ||
+                                     state.hasStyle(MarkupStyle.CheckboxUnchecked) ||
+                                     state.hasStyle(MarkupStyle.CheckboxChecked) ||
+                                     isToggleActive
+                    
+                    val activeListIcon = when {
+                        state.hasStyle(MarkupStyle.OrderedList) -> R.drawable.ic_list_numbered_2
+                        state.hasStyle(MarkupStyle.CheckboxUnchecked) || state.hasStyle(MarkupStyle.CheckboxChecked) -> R.drawable.ic_list_check_2
+                        isToggleActive -> R.drawable.ic_list_toggle_2
+                        else -> R.drawable.ic_list_bulleted_2
                     }
 
                     FilledIconButton(
@@ -582,13 +595,13 @@ private fun RowScope.FormatRowContent(
                             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                         },
                         colors = IconButtonDefaults.filledIconButtonColors(
-                            containerColor = if (isListsOpen) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainerLow,
-                            contentColor = if (isListsOpen) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f)
+                            containerColor = if (isListsOpen || isListActive) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainerLow,
+                            contentColor = if (isListsOpen || isListActive) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f)
                         ),
                         modifier = Modifier.size(buttonSize)
                     ) {
                         Icon(
-                            painter = painterResource(R.drawable.format_list_bulleted_24px),
+                            painter = painterResource(activeListIcon),
                             contentDescription = "Lists Pop-out Trigger Menu",
                             modifier = Modifier.size(20.dp)
                         )
@@ -640,6 +653,26 @@ private fun RowScope.FormatRowContent(
                         }
                     }
 
+                    val activeSize = when {
+                        state.hasStyle(MarkupStyle.H1) -> MarkupStyle.H1
+                        state.hasStyle(MarkupStyle.H2) -> MarkupStyle.H2
+                        state.hasStyle(MarkupStyle.H3) -> MarkupStyle.H3
+                        state.hasStyle(MarkupStyle.H4) -> MarkupStyle.H4
+                        state.hasStyle(MarkupStyle.H5) -> MarkupStyle.H5
+                        state.hasStyle(MarkupStyle.H6) -> MarkupStyle.H6
+                        else -> null
+                    }
+                    val isSizeActive = activeSize != null
+                    val activeSizeIcon = when (activeSize) {
+                        MarkupStyle.H1 -> R.drawable.format_h1_24px
+                        MarkupStyle.H2 -> R.drawable.format_h2_24px
+                        MarkupStyle.H3 -> R.drawable.format_h3_24px
+                        MarkupStyle.H4 -> R.drawable.format_h4_24px
+                        MarkupStyle.H5 -> R.drawable.format_h5_24px
+                        MarkupStyle.H6 -> R.drawable.format_h6_24px
+                        else -> R.drawable.format_size_24px
+                    }
+
                     FilledIconButton(
                         onClick = {
                             isSizesOpen = !isSizesOpen
@@ -647,13 +680,13 @@ private fun RowScope.FormatRowContent(
                             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                         },
                         colors = IconButtonDefaults.filledIconButtonColors(
-                            containerColor = if (isSizesOpen) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainerLow,
-                            contentColor = if (isSizesOpen) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f)
+                            containerColor = if (isSizesOpen || isSizeActive) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainerLow,
+                            contentColor = if (isSizesOpen || isSizeActive) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f)
                         ),
                         modifier = Modifier.size(buttonSize)
                     ) {
                         Icon(
-                            painter = painterResource(R.drawable.format_size_24px),
+                            painter = painterResource(activeSizeIcon),
                             contentDescription = "Sizes Typography Menu Button",
                             modifier = Modifier.size(20.dp)
                         )

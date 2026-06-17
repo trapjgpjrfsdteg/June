@@ -1,0 +1,16 @@
+- [x] Refactor formatting toolbar buttons and layout
+    - [x] Move AI Writing button to far left (with leading corner radius)
+    - [x] Move Bold button to the start of the scrollable sequence
+    - [x] Remove AI button glow animations and simplify state
+    - [x] Apply trailing corner radius to the Close button
+- [x] Implement Dynamic Selection Previews
+    - [x] Update Size trigger to reflect active heading style (H1-H6)
+    - [x] Update List trigger to reflect active list style (Bullet/Ordered)
+- [x] Fix and Enhance "Toggle List" & Lists Menu
+    - [x] Move to custom `>> ` Toggle Syntax (Notion-like)
+    - [x] Implement child hiding based on indentation (Notion-style)
+    - [x] Update Lists menu icons: Bullet, Ordered, Checklist, Toggle (Two lines long)
+    - [x] Implement `ic_list_check_2` with ticks on both lines
+    - [x] Implement `ic_list_toggle_2` with `>--` on both lines
+    - [x] Refine `JuneRichEditor` to visually hide `>> ` and anchor chevrons correctly
+- [x] Verify changes and build
